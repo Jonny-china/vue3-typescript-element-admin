@@ -1,0 +1,6 @@
+* text eol=lf
+
+# 不是文本，不更改行尾序列
+*.png binary
+*.jpg binary
+*.ico binary
