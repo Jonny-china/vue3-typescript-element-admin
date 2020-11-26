@@ -55,10 +55,10 @@ export default {
     closeSideBar({ commit }, { withoutAnimation }) {
       commit('CLOSE_SIDEBAR', withoutAnimation)
     },
-    toggleDevice({ commit }, device) {
+    toggleDevice({ commit }, device: string) {
       commit('TOGGLE_DEVICE', device)
     },
-    setSize({ commit }, size) {
+    setSize({ commit }, size: ElementUIComponentSize) {
       commit('SET_SIZE', size)
     }
   }

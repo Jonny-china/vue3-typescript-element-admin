@@ -1,11 +1,18 @@
 import store, { StoreRootState } from '@/store'
 import getters from '@/store/getters'
+import { computed, ToRefs, toRefs } from 'vue'
 
 /** state */
-export function useSelector<TSelected = unknown>(
-  selector: (state: StoreRootState) => TSelected
-) {
-  return selector(store.state) as TSelected
+export function useSelector<
+  TSelected extends Record<string, any> = Record<string, unknown>
+>(selector: (state: StoreRootState) => TSelected) {
+  const r = selector(store.state as StoreRootState)
+
+  return toRefs<TSelected>(r) as ToRefs<TSelected>
+}
+
+export function useStoreState() {
+  return computed(() => store.state)
 }
 
 type Getters<T extends { [i in keyof T]: (...args: any) => any }> = {

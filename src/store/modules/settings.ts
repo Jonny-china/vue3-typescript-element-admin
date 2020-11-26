@@ -1,5 +1,5 @@
 import variables from '@/styles/element-variables.scss'
-import { settings as defaultSettings } from '@/settings'
+const defaultSettings = require('@/settings')
 import { Module } from 'vuex'
 import { StoreRootState } from '..'
 

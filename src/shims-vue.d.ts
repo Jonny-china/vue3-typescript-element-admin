@@ -11,3 +11,4 @@ declare module '*.vue' {
 declare module 'element-plus/lib/locale/lang/en'
 
 declare module '*.scss'
+declare module 'path'

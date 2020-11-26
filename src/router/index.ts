@@ -5,14 +5,23 @@ import {
   RouteRecordRaw
 } from 'vue-router'
 
+import Layout from '@/layout/index.vue'
+
 /**
  * 自定义 路由参数
  */
 export type RouteConfig = RouteRecordRaw & {
   /**
-   * 是否在侧边菜单栏隐藏
+   * if set true, item will not show in the sidebar(default is false)
    */
   hidden?: boolean
+
+  /**
+   * if set true, will always show the root menu
+   * if not set alwaysShow, when item has more than one children route,
+   * it will becomes nested mode, otherwise not show the root menu
+   */
+  alwaysShow?: boolean
 
   meta?: RouteMeta & {
     /** control the page roles (you can set multiple roles) */
@@ -59,30 +68,43 @@ export type RouteConfig = RouteRecordRaw & {
  * all roles can be accessed
  */
 export const constantRoutes: RouteConfig[] = [
-  // {
-  //   path: '/redirect',
-  //   component: Layout,
-  //   hidden: true,
-  //   children: [
-  //     {
-  //       path: '/redirect/:path(.*)',
-  //       component: () => import('@/views/redirect/index')
-  //     }
-  //   ]
-  // },
+  {
+    path: '/redirect',
+    component: () => import('@/views/dashboard/index.vue'),
+    hidden: true,
+    children: [
+      {
+        path: '/redirect/:path(.*)',
+        component: () => import('@/views/redirect/index')
+      }
+    ]
+  },
+  {
+    path: '/',
+    component: Layout,
+    redirect: '/dashboard',
+    children: [
+      {
+        path: 'dashboard',
+        component: () => import('@/views/dashboard/index.vue'),
+        name: 'Dashboard',
+        meta: { title: 'Dashboard', icon: 'dashboard', affix: true }
+      }
+    ]
+  },
   {
     path: '/login',
     name: 'Login',
-    component: () => import('@/views/Login/index.vue'),
+    component: () => import('@/views/login/index.vue'),
     hidden: true
   }
 ]
 
 export const asyncRoutes: RouteConfig[] = [
   {
-    path: '',
+    path: '/login2',
     name: 'Login',
-    component: () => import('@/views/Login/index.vue'),
+    component: () => import('@/views/login/index.vue'),
     hidden: true
   }
 ]

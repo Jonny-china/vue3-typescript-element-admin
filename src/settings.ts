@@ -14,12 +14,12 @@ const settings = {
   /**
    * Whether fix the header
    */
-  fixedHeader: false,
+  fixedHeader: true,
 
   /**
    * Whether show the logo in sidebar
    */
-  sidebarLogo: false,
+  sidebarLogo: true,
 
   /**
    * @type {string | string[]} 'production' | ['production', 'development']

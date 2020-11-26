@@ -46,9 +46,9 @@
             name="password"
             tabindex="2"
             autocomplete="on"
-            @keyup="checkCapslock"
+            @keydown="checkCapslock"
             @blur="capsTooltip = false"
-            @keyup.enter="handleLogin"
+            @keydown.enter="handleLogin"
           />
           <span class="show-pwd" @click="showPwd">
             <svg-icon
@@ -86,14 +86,14 @@
       </div>
     </el-form>
 
-    <!-- <el-dialog title="Or connect with" v-model:visible="showDialog">
+    <el-dialog title="Or connect with" v-model="showDialog">
       Can not be simulated on local, so please combine you own business
       simulation! ! !
       <br />
       <br />
       <br />
-      <social-sign />
-    </el-dialog> -->
+      <SocialSign />
+    </el-dialog>
   </div>
 </template>
 
@@ -104,9 +104,11 @@ import { FormRuleItem, FormRules } from '@/types/common'
 import { ElForm } from 'element-plus/types/form'
 import { useDispatch } from '@/hooks/vuex'
 import { useRouter } from 'vue-router'
+import SocialSign from '../login/components/SocialSignin.vue'
 
 const Login = defineComponent({
   name: 'Login',
+  components: { SocialSign },
   setup() {
     const validateUsername: FormRuleItem['asyncValidator'] = (
       rule,
@@ -166,15 +168,14 @@ const Login = defineComponent({
         passwordRef.value?.focus()
       })
     }
+    const dispatch = useDispatch()
 
     const router = useRouter()
 
     const handleLogin = () => {
-      console.log(formRef, formRef.value)
       formRef.value?.validate(valid => {
         if (valid) {
           loading.value = true
-          const dispatch = useDispatch()
           dispatch('user/login', loginForm)
             .then(() => {
               router.push({
@@ -206,6 +207,7 @@ const Login = defineComponent({
       loginForm,
       loginRules,
       formRef,
+      passwordRef,
       capsTooltip,
       passwordType,
       loading,
@@ -287,7 +289,7 @@ $light_gray: #eee;
     max-width: 100%;
     padding: 160px 35px 0;
     margin: 0 auto;
-    overflow: hidden;
+    // overflow: hidden; // TODO: element-plus el-tooltip 默认不是插入到body，该属性会导致tooltip显示不全
   }
 
   .tips {
