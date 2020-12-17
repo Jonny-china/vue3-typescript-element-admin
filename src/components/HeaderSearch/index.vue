@@ -54,26 +54,26 @@ const HeaderSearch = defineComponent({
     const { permission_routes: routes } = useGetters()
 
     watch(
-      () => routes,
-      () => {
-        searchPool.value = generateRoutes(routes)
+      routes,
+      val => {
+        searchPool.value = generateRoutes(val as RouteConfig[])
+      },
+      {
+        deep: true
       }
     )
-    watch(() => searchPool.value, initFuse)
+    watch(searchPool, initFuse)
 
-    watch(
-      () => show.value,
-      value => {
-        if (value) {
-          document.body.addEventListener('click', close)
-        } else {
-          document.body.removeEventListener('click', close)
-        }
+    watch(show, value => {
+      if (value) {
+        document.body.addEventListener('click', close)
+      } else {
+        document.body.removeEventListener('click', close)
       }
-    )
+    })
 
     onMounted(() => {
-      searchPool.value = generateRoutes(routes)
+      searchPool.value = generateRoutes(routes.value as RouteConfig[])
     })
 
     function click() {
@@ -201,7 +201,7 @@ export default HeaderSearch
     display: inline-block;
     vertical-align: middle;
 
-    ::v-deep .el-input__inner {
+    :deep(.el-input__inner) {
       border-radius: 0;
       border: 0;
       padding-left: 0;

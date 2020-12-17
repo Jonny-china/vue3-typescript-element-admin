@@ -29,25 +29,29 @@ export default AppMain
 
 <style lang="scss" scoped>
 .app-main {
-  /* 50= navbar  50  */
-  min-height: calc(100vh - 50px);
-  width: 100%;
+  /* 90 = navbar + wrap padding = 50 + 40 */
+  min-height: calc(100vh - 90px);
+  padding: 20px;
+  width: calc(100% - 40px);
   position: relative;
   overflow: hidden;
+  box-sizing: content-box;
 }
 
 .fixed-header + .app-main {
-  padding-top: 50px;
+  /* 70 = navbar + wrap padding top = 50 + 20 */
+  padding-top: 70px;
 }
 
 .hasTagsView {
   .app-main {
-    /* 84 = navbar + tags-view = 50 + 34 */
-    min-height: calc(100vh - 84px);
+    /* 124 = navbar + tags-view + wrap padding = 50 + 34 + 40 */
+    min-height: calc(100vh - 124px);
   }
 
+  /* 104 = navbar + tags-view wrap padding top = 50 + 34 + 20 */
   .fixed-header + .app-main {
-    padding-top: 84px;
+    padding-top: 104px;
   }
 }
 </style>

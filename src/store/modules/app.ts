@@ -1,4 +1,4 @@
-import { ElementUIComponentSize } from 'element-plus/types/component'
+import { ComponentSize } from '@/types/common'
 import Cookies from 'js-cookie'
 import { Module } from 'vuex'
 import { StoreRootState } from '..'
@@ -10,7 +10,7 @@ export interface AppState {
   }
   device: 'desktop' | 'mobile'
 
-  size: ElementUIComponentSize
+  size: ComponentSize
 }
 
 export default {
@@ -23,7 +23,7 @@ export default {
       withoutAnimation: false
     },
     device: 'desktop',
-    size: (Cookies.get('size') as ElementUIComponentSize) || 'medium'
+    size: (Cookies.get('size') as ComponentSize) || 'medium'
   },
   mutations: {
     TOGGLE_SIDEBAR: state => {
@@ -58,7 +58,7 @@ export default {
     toggleDevice({ commit }, device: string) {
       commit('TOGGLE_DEVICE', device)
     },
-    setSize({ commit }, size: ElementUIComponentSize) {
+    setSize({ commit }, size: ComponentSize) {
       commit('SET_SIZE', size)
     }
   }

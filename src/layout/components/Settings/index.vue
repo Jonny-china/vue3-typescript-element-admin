@@ -77,6 +77,7 @@ export default {
     })
 
     function themeChange(val: string) {
+      console.log(val)
       dispatch('settings/changeSetting', {
         key: 'theme',
         value: val

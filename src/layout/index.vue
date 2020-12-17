@@ -14,7 +14,6 @@
 
       <app-main />
 
-      {{ `${needTagsView}` }}
       <right-panel v-if="showSettings">
         <settings />
       </right-panel>
@@ -26,7 +25,7 @@
 import RightPanel from '@/components/RightPanel/index.vue'
 import { AppMain, Navbar, Settings, Sidebar, TagsView } from './components'
 import { useDispatch, useSelector } from '@/hooks/vuex'
-import { computed, defineComponent, toRefs, watch } from 'vue'
+import { computed, defineComponent, watch } from 'vue'
 import useResize from './useResize'
 
 const Layout = defineComponent({
@@ -43,16 +42,13 @@ const Layout = defineComponent({
     useResize()
 
     const { sidebar, device } = useSelector(state => state.app)
-    const { showSettings, tagsView: needTagsView, fixedHeader } = toRefs(
-      useSelector(state => state.settings)
+    const { showSettings, tagsView: needTagsView, fixedHeader } = useSelector(
+      state => state.settings
     )
 
-    watch(
-      () => needTagsView.value,
-      val => {
-        console.log(val)
-      }
-    )
+    watch(needTagsView, val => {
+      console.log(val)
+    })
 
     const classObj = computed(() => ({
       hideSidebar: !sidebar.value.opened,

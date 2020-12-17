@@ -43,10 +43,10 @@
 import ScrollPane from './ScrollPane.vue'
 import path from 'path'
 import { defineComponent, nextTick, onMounted, ref, watch } from 'vue'
-import { useDispatch, useSelector } from '@/hooks/vuex'
+import { useDispatch } from '@/hooks/vuex'
 import { useRoute, useRouter } from 'vue-router'
 import { RouteConfig } from '@/router'
-import store from '@/store'
+import { PermissionModule, TagsViewModule } from '@/store'
 
 const TagsView = defineComponent({
   name: 'TagsView',
@@ -61,37 +61,32 @@ const TagsView = defineComponent({
     const tagRef = ref()
     const tagsViewRef = ref<HTMLElement>()
     const scrollPaneRef = ref()
-
-    const { visitedViews } = useSelector(state => state.tagsView)
-
-    const routes = store.state.permission.routes
+    const visitedViews = ref(TagsViewModule.visitedViews)
 
     const $route = useRoute()
     const $router = useRouter()
     const dispatch = useDispatch()
 
     watch(
-      () => $route,
+      () => $route.fullPath,
       () => {
         initTags()
         addTags()
       }
     )
-    watch(
-      () => visible.value,
-      (value: boolean) => {
-        if (value) {
-          document.body.addEventListener('click', closeMenu)
-        } else {
-          document.body.removeEventListener('click', closeMenu)
-        }
+    watch(visible, (value: boolean) => {
+      if (value) {
+        document.body.addEventListener('click', closeMenu)
+      } else {
+        document.body.removeEventListener('click', closeMenu)
       }
-    )
+    })
 
     onMounted(() => {
       initTags()
       addTags()
     })
+
     function isActive(route: RouteConfig) {
       return route?.path === $route.path
     }
@@ -120,7 +115,9 @@ const TagsView = defineComponent({
       return tags
     }
     function initTags() {
-      const affix = (affixTags.value = filterAffixTags(routes))
+      const affix = (affixTags.value = filterAffixTags(
+        PermissionModule.routes as RouteConfig[]
+      ))
       for (const tag of affix) {
         // Must have tag name
         if (tag.name) {

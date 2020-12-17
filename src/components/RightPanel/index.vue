@@ -38,19 +38,16 @@ const RightPanel = defineComponent({
     const rightPanelRef = ref<HTMLDivElement>()
     const { theme } = useSelector(state => state.settings)
 
-    watch(
-      () => show.value,
-      value => {
-        if (value && !props.clickNotClose) {
-          addEventClick()
-        }
-        if (value) {
-          addClass(document.body, 'showRightPanel')
-        } else {
-          removeClass(document.body, 'showRightPanel')
-        }
+    watch(show, value => {
+      if (value && !props.clickNotClose) {
+        addEventClick()
       }
-    )
+      if (value) {
+        addClass(document.body, 'showRightPanel')
+      } else {
+        removeClass(document.body, 'showRightPanel')
+      }
+    })
 
     onMounted(insertToBody)
 

@@ -22,8 +22,8 @@
 
 <script lang="ts">
 import { useDispatch, useGetters } from '@/hooks/vuex'
-import { Message } from 'element-plus'
-import { ElementUIComponentSize } from 'element-plus/types/component'
+import { app } from '@/main'
+import { ElMessage } from 'element-plus'
 import { defineComponent, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
@@ -42,11 +42,12 @@ const SizeSelect = defineComponent({
     const $route = useRoute()
     const $router = useRouter()
 
-    function handleSetSize(setSize: ElementUIComponentSize) {
-      // this.$ELEMENT.size = size
+    function handleSetSize(setSize: string) {
+      app.config.globalProperties.$ELEMENT.size = size.value
+
       dispatch('app/setSize', setSize)
       refreshView()
-      Message.warning('Switch Size Success')
+      ElMessage.warning('Switch Size Success')
     }
 
     function refreshView() {

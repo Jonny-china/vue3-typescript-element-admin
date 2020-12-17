@@ -101,10 +101,10 @@
 import { defineComponent, nextTick, reactive, ref } from 'vue'
 import { validUsername } from '@/utils/validate'
 import { FormRuleItem, FormRules } from '@/types/common'
-import { ElForm } from 'element-plus/types/form'
 import { useDispatch } from '@/hooks/vuex'
 import { useRouter } from 'vue-router'
-import SocialSign from '../login/components/SocialSignin.vue'
+import SocialSign from './components/SocialSignin.vue'
+import { ElForm } from 'element-plus'
 
 const Login = defineComponent({
   name: 'Login',
@@ -151,7 +151,7 @@ const Login = defineComponent({
     const redirect = ref()
     const otherQuery = reactive({})
 
-    const formRef = ref<ElForm>()
+    const formRef = ref<typeof ElForm>()
     const passwordRef = ref<HTMLInputElement>()
 
     const checkCapslock = (e: KeyboardEvent) => {
@@ -173,7 +173,7 @@ const Login = defineComponent({
     const router = useRouter()
 
     const handleLogin = () => {
-      formRef.value?.validate(valid => {
+      formRef.value?.validate((valid: boolean) => {
         if (valid) {
           loading.value = true
           dispatch('user/login', loginForm)
@@ -289,7 +289,7 @@ $light_gray: #eee;
     max-width: 100%;
     padding: 160px 35px 0;
     margin: 0 auto;
-    // overflow: hidden; // TODO: element-plus el-tooltip 默认不是插入到body，该属性会导致tooltip显示不全
+    overflow: hidden;
   }
 
   .tips {

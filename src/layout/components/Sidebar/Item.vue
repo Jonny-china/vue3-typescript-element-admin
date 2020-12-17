@@ -4,7 +4,7 @@
   <span>{{ title }}</span>
 </template>
 
-<script lang="tsx">
+<script lang="ts">
 import { defineComponent } from 'vue'
 
 const MenuItem = defineComponent({

@@ -9,7 +9,7 @@
 
 <script lang="ts">
 import screenfull, { Screenfull } from 'screenfull'
-import { Message } from 'element-plus'
+import { ElMessage } from 'element-plus'
 import { onBeforeUnmount, onMounted, ref } from 'vue'
 
 export default {
@@ -22,7 +22,7 @@ export default {
 
     function click() {
       if (!screenfull.isEnabled) {
-        Message.warning('you browser can not work')
+        ElMessage.warning('you browser can not work')
         return false
       }
       screenfull.toggle()

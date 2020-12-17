@@ -11,7 +11,7 @@ export default function useResize() {
   const { device, sidebar } = useSelector(state => state.app)
 
   watch(
-    () => $route,
+    () => $route.fullPath,
     () => {
       if (device.value === 'mobile' && sidebar.value.opened) {
         dispatch('app/closeSideBar', { withoutAnimation: false })

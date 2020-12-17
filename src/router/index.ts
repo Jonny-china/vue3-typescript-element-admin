@@ -70,12 +70,12 @@ export type RouteConfig = RouteRecordRaw & {
 export const constantRoutes: RouteConfig[] = [
   {
     path: '/redirect',
-    component: () => import('@/views/dashboard/index.vue'),
+    component: Layout,
     hidden: true,
     children: [
       {
         path: '/redirect/:path(.*)',
-        component: () => import('@/views/redirect/index')
+        component: () => import('@/views/Redirect')
       }
     ]
   },
@@ -86,7 +86,7 @@ export const constantRoutes: RouteConfig[] = [
     children: [
       {
         path: 'dashboard',
-        component: () => import('@/views/dashboard/index.vue'),
+        component: () => import('@/views/Dashboard/index.vue'),
         name: 'Dashboard',
         meta: { title: 'Dashboard', icon: 'dashboard', affix: true }
       }
@@ -95,7 +95,7 @@ export const constantRoutes: RouteConfig[] = [
   {
     path: '/login',
     name: 'Login',
-    component: () => import('@/views/login/index.vue'),
+    component: () => import('@/views/Login/index.vue'),
     hidden: true
   }
 ]
@@ -103,14 +103,30 @@ export const constantRoutes: RouteConfig[] = [
 export const asyncRoutes: RouteConfig[] = [
   {
     path: '/login2',
-    name: 'Login',
-    component: () => import('@/views/login/index.vue'),
+    name: 'Login2',
+    component: () => import('@/views/Login/index.vue'),
     hidden: true
+  },
+  {
+    path: '/clipboard',
+    component: Layout,
+    redirect: '/clipboard/index',
+    children: [
+      {
+        path: 'index',
+        component: () => import('@/views/Clipboard/index.vue'),
+        name: 'ClipboardDemo',
+        meta: { title: 'Clipboard', icon: 'clipboard' }
+      }
+    ]
   }
 ]
 
 const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
+  scrollBehavior: (to, from, savedPosition) => {
+    return savedPosition ?? { left: 0, top: 0 }
+  },
   routes: constantRoutes
 })
 

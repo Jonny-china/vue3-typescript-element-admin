@@ -28,7 +28,7 @@ import Logo from './Logo.vue'
 import SidebarItem from './SidebarItem.vue'
 import stylesVariables from '@/styles/variables.scss'
 import { useGetters, useSelector } from '@/hooks/vuex'
-import { computed, defineComponent } from 'vue'
+import { computed, defineComponent, watch } from 'vue'
 import { useRoute } from 'vue-router'
 
 const Sidebar = defineComponent({
@@ -46,10 +46,12 @@ const Sidebar = defineComponent({
     })
     const { permission_routes, sidebar } = useGetters()
     const variables = computed(() => stylesVariables)
-    const isCollapse = computed(() => !sidebar.opened)
+    const isCollapse = computed(() => !sidebar.value.opened)
 
     const { sidebarLogo: showLogo } = useSelector(state => state.settings)
-
+    watch(permission_routes, val => {
+      console.log(val)
+    })
     return {
       permission_routes,
       sidebar,

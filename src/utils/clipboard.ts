@@ -1,8 +1,8 @@
 import Clipboard from 'clipboard'
-import { Message } from 'element-plus'
+import { ElMessage } from 'element-plus'
 
 function clipboardSuccess() {
-  Message({
+  ElMessage({
     message: 'Copy successfully',
     type: 'success',
     duration: 1500
@@ -10,13 +10,13 @@ function clipboardSuccess() {
 }
 
 function clipboardError() {
-  Message({
+  ElMessage({
     message: 'Copy failed',
     type: 'error'
   })
 }
 
-export default function handleClipboard(text: string, event: Event) {
+export default function clip(text: string, event: Event) {
   const clipboard = new Clipboard(
     event.target as string | Element | NodeListOf<Element>,
     {

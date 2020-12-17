@@ -1,3 +1,4 @@
+import { reactive, readonly } from 'vue'
 import { createStore } from 'vuex'
 import getters from './getters'
 import { AppState } from './modules/app'
@@ -53,3 +54,15 @@ export interface StoreRootState {
   tagsView: TagsViewState
   user: UserState
 }
+
+export const AppModule = readonly(reactive(store.state.app))
+
+export const ErrorLogMudole = readonly(reactive(store.state.errorLog))
+
+export const PermissionModule = readonly(reactive(store.state.permission))
+
+export const SettingsModule = readonly(reactive(store.state.settings))
+
+export const TagsViewModule = readonly(reactive(store.state.tagsView))
+
+export const UserModule = readonly(reactive(store.state.user))

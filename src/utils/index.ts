@@ -271,7 +271,7 @@ export function debounce(
   wait: number,
   immediate: boolean
 ): any {
-  let timeout!: number | null,
+  let timeout!: NodeJS.Timeout | null,
     args: any,
     context: any,
     timestamp!: number,

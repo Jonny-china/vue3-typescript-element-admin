@@ -43,22 +43,16 @@ module.exports = {
   configureWebpack: {
     // provide the app's title in webpack's name field, so that
     // it can be accessed in index.html to inject the correct title.
-    name: name,
-    resolve: {
-      alias: {
-        '@': resolve('src')
-      }
-    }
+    name: name
   },
   chainWebpack(config) {
-    // it can improve the speed of the first screen, it is recommended to turn on preload
     // it can improve the speed of the first screen, it is recommended to turn on preload
     config.plugin('preload').tap(() => [
       {
         rel: 'preload',
         // to ignore runtime.js
         // https://github.com/vuejs/vue-cli/blob/dev/packages/@vue/cli-service/lib/config/app.js#L171
-        fileBlacklist: [/\.map$/, /hot-update\.js$/, /runtime\..*\.js$/],
+        fileBlacklist: [/\.map$/, /hot-update\.js$/],
         include: 'initial'
       }
     ])
@@ -81,16 +75,6 @@ module.exports = {
       .end()
 
     config.when(process.env.NODE_ENV !== 'development', config => {
-      config
-        .plugin('ScriptExtHtmlWebpackPlugin')
-        .after('html')
-        .use('script-ext-html-webpack-plugin', [
-          {
-            // `runtime` must same as runtimeChunk name. default is `runtime`
-            inline: /runtime\..*\.js$/
-          }
-        ])
-        .end()
       config.optimization.splitChunks({
         chunks: 'all',
         cacheGroups: {

@@ -18,8 +18,8 @@
 
 <script lang="ts">
 import { useSelector } from '@/hooks/vuex'
-import { Message } from 'element-plus'
-import { defineComponent, ref, watch } from 'vue'
+import { ElMessage } from 'element-plus'
+import { defineComponent, getCurrentInstance, ref, watch } from 'vue'
 
 const version = require('element-plus/package.json').version // element-plus version from node_modules
 const ORIGINAL_THEME = '#409EFF' // default color
@@ -27,13 +27,14 @@ const ORIGINAL_THEME = '#409EFF' // default color
 const ThemePicker = defineComponent({
   name: 'ThemePicker',
   setup(props, { emit }) {
+    const app = getCurrentInstance()
     let chalk = '' // content of theme-chalk css
     const theme = ref('')
 
     const { theme: defaultTheme } = useSelector(state => state.settings)
 
     watch(
-      () => defaultTheme.value,
+      defaultTheme,
       (val: string) => {
         theme.value = val
       },
@@ -42,77 +43,66 @@ const ThemePicker = defineComponent({
       }
     )
 
-    watch(
-      () => theme.value,
-      async (val: string) => {
-        const oldVal = chalk ? theme.value : ORIGINAL_THEME
-        if (typeof val !== 'string') return
-        const themeCluster = getThemeCluster(val.replace('#', ''))
-        const originalCluster = getThemeCluster(oldVal.replace('#', ''))
-        console.log(themeCluster, originalCluster)
+    watch(theme, async (val: string) => {
+      const oldVal = chalk ? theme.value : ORIGINAL_THEME
+      if (typeof val !== 'string') return
+      const themeCluster = getThemeCluster(val.replace('#', ''))
+      const originalCluster = getThemeCluster(oldVal.replace('#', ''))
+      console.log(themeCluster, originalCluster)
+      console.log(app)
+      console.log(ElMessage)
+      const $message = ElMessage({
+        message: '  Compiling the theme',
+        customClass: 'theme-message',
+        type: 'success',
+        duration: 0,
+        iconClass: 'el-icon-loading'
+      })
 
-        const $message = Message({
-          message: '  Compiling the theme',
-          customClass: 'theme-message',
-          type: 'success',
-          duration: 0,
-          iconClass: 'el-icon-loading'
-        })
+      const getHandler = (variable: string, id: string) => {
+        return () => {
+          const originalCluster = getThemeCluster(
+            ORIGINAL_THEME.replace('#', '')
+          )
+          const newStyle = updateStyle(variable, originalCluster, themeCluster)
 
-        const getHandler = (variable: string, id: string) => {
-          return () => {
-            const originalCluster = getThemeCluster(
-              ORIGINAL_THEME.replace('#', '')
-            )
-            const newStyle = updateStyle(
-              variable,
-              originalCluster,
-              themeCluster
-            )
-
-            let styleTag = document.getElementById(id)
-            if (!styleTag) {
-              styleTag = document.createElement('style')
-              styleTag.setAttribute('id', id)
-              document.head.appendChild(styleTag)
-            }
-            styleTag.innerText = newStyle
+          let styleTag = document.getElementById(id)
+          if (!styleTag) {
+            styleTag = document.createElement('style')
+            styleTag.setAttribute('id', id)
+            document.head.appendChild(styleTag)
           }
+          styleTag.innerText = newStyle
         }
+      }
 
-        if (!chalk) {
-          const url = `https://unpkg.com/element-ui@${version}/lib/theme-chalk/index.css`
-          await getCSSString(url, 'chalk')
-        }
+      if (!chalk) {
+        const url = `https://unpkg.com/element-plus@${version}/lib/theme-chalk/index.css`
+        await getCSSString(url, 'chalk')
+      }
 
-        const chalkHandler = getHandler(chalk, 'chalk-style')
+      const chalkHandler = getHandler(chalk, 'chalk-style')
 
-        chalkHandler()
+      chalkHandler()
 
-        const styles: HTMLStyleElement[] = [].slice
-          .call(document.querySelectorAll('style'))
-          .filter((style: HTMLStyleElement) => {
-            const text = style.innerText
-            return (
-              new RegExp(oldVal, 'i').test(text) &&
-              !/Chalk Variables/.test(text)
-            )
-          })
-        styles.forEach(style => {
-          const { innerText } = style
-          if (typeof innerText !== 'string') return
-          style.innerText = updateStyle(
-            innerText,
-            originalCluster,
-            themeCluster
+      const styles: HTMLStyleElement[] = [].slice
+        .call(document.querySelectorAll('style'))
+        .filter((style: HTMLStyleElement) => {
+          const text = style.innerText
+          return (
+            new RegExp(oldVal, 'i').test(text) && !/Chalk Variables/.test(text)
           )
         })
+      styles.forEach(style => {
+        const { innerText } = style
+        if (typeof innerText !== 'string') return
+        style.innerText = updateStyle(innerText, originalCluster, themeCluster)
+      })
 
-        emit('change', val)
+      emit('change', val)
 
-        $message.close()
-      }
-    )
+      $message?.close()
+    })
 
     function updateStyle(
       style: string,

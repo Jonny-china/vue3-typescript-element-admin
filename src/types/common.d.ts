@@ -1,5 +1,7 @@
 import { RuleItem } from 'async-validator'
 
+export type ComponentSize = 'large' | 'medium' | 'small' | 'mini'
+
 export interface FormRuleItem extends RuleItem {
   trigger: 'blur' | 'change'
 }

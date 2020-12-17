@@ -51,7 +51,7 @@ import { isExternal } from '@/utils/validate'
 import Item from './Item.vue'
 import AppLink from './Link.vue'
 import useFixiOSBug from './useFixiOSBug'
-import { defineComponent, reactive } from 'vue'
+import { defineComponent, ref } from 'vue'
 import { RouteConfig } from '@/router'
 
 type Route = RouteConfig & { noShowingChildren: boolean }
@@ -76,7 +76,7 @@ const SidebarItem = defineComponent({
   },
   setup(props) {
     const { subMenuRef } = useFixiOSBug()
-    let onlyOneChild = reactive<Route>({} as Route)
+    let onlyOneChild = ref<Route>({} as Route)
 
     function hasOneShowingChild(children: Route[] = [], parent: Route) {
       const showingChildren = children.filter(item => {
@@ -84,7 +84,7 @@ const SidebarItem = defineComponent({
           return false
         } else {
           // Temp set(will be used if only has one showing child)
-          onlyOneChild = item
+          onlyOneChild.value = item
           return true
         }
       })
@@ -96,7 +96,7 @@ const SidebarItem = defineComponent({
 
       // Show parent if there are no child router to display
       if (showingChildren.length === 0) {
-        onlyOneChild = { ...parent, path: '', noShowingChildren: true }
+        onlyOneChild.value = { ...parent, path: '', noShowingChildren: true }
         return true
       }
 
