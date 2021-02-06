@@ -1,25 +1,29 @@
 <template>
   <section class="app-main">
     <router-view :key="key" v-slot="{ Component }">
-      <keep-alive :include="cachedViews">
-        <transition name="fade-transform" mode="out-in">
+      <transition name="fade-transform" mode="out-in">
+        <keep-alive :include="cachedViews">
           <component :is="Component" />
-        </transition>
-      </keep-alive>
+        </keep-alive>
+      </transition>
     </router-view>
   </section>
 </template>
 
 <script lang="ts">
-import { useSelector } from '@/hooks/vuex'
-import { defineComponent } from 'vue'
+import { TagsViewModule } from '@/store'
+import { defineComponent, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 
 const AppMain = defineComponent({
   name: 'AppMain',
   setup() {
     const { path } = useRoute()
-    const { cachedViews } = useSelector(state => state.tagsView)
+    const cachedViews = ref(TagsViewModule.cachedViews)
+    console.log(cachedViews.value)
+    watch(cachedViews, val => {
+      console.log(val)
+    })
     return { key: path, cachedViews }
   }
 })

@@ -115,7 +115,7 @@ export const asyncRoutes: RouteConfig[] = [
       {
         path: 'index',
         component: () => import('@/views/Clipboard/index.vue'),
-        name: 'ClipboardDemo',
+        name: 'Clipboard',
         meta: { title: 'Clipboard', icon: 'clipboard' }
       }
     ]

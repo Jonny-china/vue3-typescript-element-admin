@@ -128,6 +128,7 @@ const TagsView = defineComponent({
     function addTags() {
       const { name } = $route
       if (name) {
+        console.log(name)
         dispatch('tagsView/addView', $route)
       }
       return false

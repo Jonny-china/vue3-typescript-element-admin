@@ -1,7 +1,7 @@
 <template>
   <div :class="classObj" class="app-wrapper">
     <div
-      v-if="device === 'mobile' && sidebar.opened"
+      v-if="device === 'mobile' && sidebarOpen"
       class="drawer-bg"
       @click="handleClickOutside"
     />
@@ -24,9 +24,10 @@
 <script lang="ts">
 import RightPanel from '@/components/RightPanel/index.vue'
 import { AppMain, Navbar, Settings, Sidebar, TagsView } from './components'
-import { useDispatch, useSelector } from '@/hooks/vuex'
-import { computed, defineComponent, watch } from 'vue'
+import { useAction, useSelector } from '@/hooks/vuex'
+import { computed, defineComponent } from 'vue'
 import useResize from './useResize'
+import { AppModule } from '@/store'
 
 const Layout = defineComponent({
   name: 'Layout',
@@ -40,30 +41,24 @@ const Layout = defineComponent({
   },
   setup() {
     useResize()
-
-    const { sidebar, device } = useSelector(state => state.app)
+    const device = computed(() => AppModule.device)
+    const sidebarOpen = computed(() => AppModule.sidebar.opened)
     const { showSettings, tagsView: needTagsView, fixedHeader } = useSelector(
       state => state.settings
     )
 
-    watch(needTagsView, val => {
-      console.log(val)
-    })
-
     const classObj = computed(() => ({
-      hideSidebar: !sidebar.value.opened,
-      openSidebar: sidebar.value.opened,
-      withoutAnimation: sidebar.value.withoutAnimation,
+      hideSidebar: !sidebarOpen.value,
+      openSidebar: sidebarOpen.value,
+      withoutAnimation: AppModule.sidebar.withoutAnimation,
       mobile: device.value === 'mobile'
     }))
 
-    const dispatch = useDispatch()
+    const closeSideBar = useAction('app/closeSideBar')
+    const handleClickOutside = () => closeSideBar({ withoutAnimation: false })
 
-    function handleClickOutside() {
-      dispatch('app/closeSideBar', { withoutAnimation: false })
-    }
     return {
-      sidebar,
+      sidebarOpen,
       device,
       showSettings,
       needTagsView,

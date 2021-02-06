@@ -55,6 +55,7 @@ export default DashboardEditor
 
 .dashboard-editor-container {
   background-color: #e3e3e3;
+  margin: -20px;
   min-height: 100vh;
   padding: 50px 60px 0px;
 

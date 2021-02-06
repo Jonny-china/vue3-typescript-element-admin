@@ -27,7 +27,7 @@ export function useDispatch() {
 }
 
 /** actions */
-export function useActions(action: string) {
+export function useAction(action: string) {
   return (...arg: any) => store.dispatch(action, ...arg)
 }
 
