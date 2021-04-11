@@ -1,4 +1,4 @@
-import router, { RouteConfig } from './router'
+import router from './router'
 import store from './store'
 import { ElMessage } from 'element-plus'
 import NProgress from 'nprogress' // progress bar
@@ -6,6 +6,7 @@ import 'nprogress/nprogress.css' // progress bar style
 import { getToken } from '@/utils/auth' // get token from cookie
 import getPageTitle from '@/utils/get-page-title'
 import { useDispatch } from './hooks/vuex'
+import { RouteRecordRaw } from 'vue-router'
 
 NProgress.configure({ showSpinner: false }) // NProgress Configuration
 
@@ -16,7 +17,7 @@ router.beforeEach(async (to, from, next) => {
   NProgress.start()
 
   // set page title
-  document.title = getPageTitle(to.meta.title)
+  document.title = getPageTitle(to.meta.title ?? '')
 
   // determine whether the user has logged in
   const hasToken = getToken()
@@ -39,7 +40,7 @@ router.beforeEach(async (to, from, next) => {
           const { roles } = await dispatch<{ roles: string[] }>('user/getInfo')
 
           // generate accessible routes map based on roles
-          const accessRoutes = await dispatch<RouteConfig[]>(
+          const accessRoutes = await dispatch<RouteRecordRaw[]>(
             'permission/generateRoutes',
             roles
           )

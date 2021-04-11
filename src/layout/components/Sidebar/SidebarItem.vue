@@ -52,9 +52,9 @@ import Item from './Item.vue'
 import AppLink from './Link.vue'
 import useFixiOSBug from './useFixiOSBug'
 import { defineComponent, ref } from 'vue'
-import { RouteConfig } from '@/router'
+import { RouteRecordRaw } from 'vue-router'
 
-type Route = RouteConfig & { noShowingChildren: boolean }
+type Route = RouteRecordRaw & { noShowingChildren: boolean }
 
 const SidebarItem = defineComponent({
   name: 'SidebarItem',

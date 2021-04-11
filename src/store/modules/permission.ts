@@ -1,11 +1,11 @@
 import { asyncRoutes, constantRoutes } from '@/router'
 import { Module } from 'vuex'
 import { StoreRootState } from '..'
-import { RouteConfig } from '@/router'
+import { RouteRecordRaw } from 'vue-router'
 
 export interface PermissionState {
-  routes: RouteConfig[]
-  addRoutes: RouteConfig[]
+  routes: RouteRecordRaw[]
+  addRoutes: RouteRecordRaw[]
 }
 
 /**
@@ -13,7 +13,7 @@ export interface PermissionState {
  * @param roles
  * @param route
  */
-function hasPermission(roles: string[], route: RouteConfig) {
+function hasPermission(roles: string[], route: RouteRecordRaw) {
   if (route.meta && route.meta.roles) {
     return roles.some(role => route.meta?.roles?.includes(role))
   } else {
@@ -26,8 +26,8 @@ function hasPermission(roles: string[], route: RouteConfig) {
  * @param routes asyncRoutes
  * @param roles
  */
-export function filterAsyncRoutes(routes: RouteConfig[], roles: string[]) {
-  const res: RouteConfig[] = []
+export function filterAsyncRoutes(routes: RouteRecordRaw[], roles: string[]) {
+  const res: RouteRecordRaw[] = []
 
   routes.forEach(route => {
     const tmp = { ...route }

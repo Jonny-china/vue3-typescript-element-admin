@@ -45,7 +45,7 @@ import path from 'path'
 import { defineComponent, nextTick, onMounted, ref, watch } from 'vue'
 import { useDispatch } from '@/hooks/vuex'
 import { useRoute, useRouter } from 'vue-router'
-import { RouteConfig } from '@/router'
+import { RouteRecordRaw } from 'vue-router'
 import { PermissionModule, TagsViewModule } from '@/store'
 
 const TagsView = defineComponent({
@@ -87,13 +87,13 @@ const TagsView = defineComponent({
       addTags()
     })
 
-    function isActive(route: RouteConfig) {
+    function isActive(route: RouteRecordRaw) {
       return route?.path === $route.path
     }
-    function isAffix(tag?: RouteConfig) {
+    function isAffix(tag?: RouteRecordRaw) {
       return tag?.meta?.affix
     }
-    function filterAffixTags(routeList: RouteConfig[], basePath = '/') {
+    function filterAffixTags(routeList: RouteRecordRaw[], basePath = '/') {
       let tags: any[] = []
       routeList.forEach(route => {
         if (route.meta && route.meta.affix) {
@@ -116,7 +116,7 @@ const TagsView = defineComponent({
     }
     function initTags() {
       const affix = (affixTags.value = filterAffixTags(
-        PermissionModule.routes as RouteConfig[]
+        PermissionModule.routes as RouteRecordRaw[]
       ))
       for (const tag of affix) {
         // Must have tag name

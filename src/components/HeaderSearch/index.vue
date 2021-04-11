@@ -30,7 +30,7 @@
 // fuse is a lightweight fuzzy-search module
 // make search results more in line with expectations
 import { useGetters } from '@/hooks/vuex'
-import { RouteConfig } from '@/router'
+import { RouteRecordRaw } from 'vue-router'
 import Fuse from 'fuse.js'
 import path from 'path'
 import { defineComponent, nextTick, onMounted, ref, watch } from 'vue'
@@ -56,7 +56,7 @@ const HeaderSearch = defineComponent({
     watch(
       routes,
       val => {
-        searchPool.value = generateRoutes(val as RouteConfig[])
+        searchPool.value = generateRoutes(val as RouteRecordRaw[])
       },
       {
         deep: true
@@ -73,7 +73,7 @@ const HeaderSearch = defineComponent({
     })
 
     onMounted(() => {
-      searchPool.value = generateRoutes(routes.value as RouteConfig[])
+      searchPool.value = generateRoutes(routes.value as RouteRecordRaw[])
     })
 
     function click() {
@@ -117,7 +117,7 @@ const HeaderSearch = defineComponent({
     // Filter out the routes that can be displayed in the sidebar
     // And generate the internationalized title
     function generateRoutes(
-      routes: RouteConfig[],
+      routes: RouteRecordRaw[],
       basePath = '/',
       prefixTitle: string[] = []
     ) {

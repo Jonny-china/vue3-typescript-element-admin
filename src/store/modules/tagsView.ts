@@ -1,10 +1,10 @@
-import { RouteConfig } from '@/router'
+import { RouteRecordRaw } from 'vue-router'
 import { Module } from 'vuex'
 import { StoreRootState } from '..'
 
 export interface TagsViewState {
-  visitedViews: RouteConfig[]
-  cachedViews: RouteConfig[]
+  visitedViews: RouteRecordRaw[]
+  cachedViews: RouteRecordRaw[]
 }
 
 export default {
