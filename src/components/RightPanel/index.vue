@@ -17,9 +17,16 @@
 </template>
 
 <script lang="ts">
+import { SettingsModule } from '@/store/modules'
 import { addClass, removeClass } from '@/utils'
-import { defineComponent, onBeforeUnmount, onMounted, ref, watch } from 'vue'
-import { useSelector } from '@/hooks/vuex'
+import {
+  computed,
+  defineComponent,
+  onBeforeUnmount,
+  onMounted,
+  ref,
+  watch
+} from 'vue'
 
 const RightPanel = defineComponent({
   name: 'RightPanel',
@@ -36,7 +43,6 @@ const RightPanel = defineComponent({
   setup(props) {
     const show = ref(false)
     const rightPanelRef = ref<HTMLDivElement>()
-    const { theme } = useSelector(state => state.settings)
 
     watch(show, value => {
       if (value && !props.clickNotClose) {
@@ -75,7 +81,7 @@ const RightPanel = defineComponent({
     return {
       show,
       rightPanelRef,
-      theme
+      theme: computed(() => SettingsModule.theme)
     }
   }
 })

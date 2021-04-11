@@ -24,10 +24,9 @@
 <script lang="ts">
 import RightPanel from '@/components/RightPanel/index.vue'
 import { AppMain, Navbar, Settings, Sidebar, TagsView } from './components'
-import { useAction, useSelector } from '@/hooks/vuex'
 import { computed, defineComponent } from 'vue'
 import useResize from './useResize'
-import { AppModule } from '@/store'
+import { AppModule, SettingsModule } from '@/store/modules'
 
 const Layout = defineComponent({
   name: 'Layout',
@@ -43,9 +42,6 @@ const Layout = defineComponent({
     useResize()
     const device = computed(() => AppModule.device)
     const sidebarOpen = computed(() => AppModule.sidebar.opened)
-    const { showSettings, tagsView: needTagsView, fixedHeader } = useSelector(
-      state => state.settings
-    )
 
     const classObj = computed(() => ({
       hideSidebar: !sidebarOpen.value,
@@ -54,17 +50,15 @@ const Layout = defineComponent({
       mobile: device.value === 'mobile'
     }))
 
-    const closeSideBar = useAction('app/closeSideBar')
-    const handleClickOutside = () => closeSideBar({ withoutAnimation: false })
-
     return {
       sidebarOpen,
       device,
-      showSettings,
-      needTagsView,
-      fixedHeader,
+      showSettings: computed(() => SettingsModule.showSettings),
+      needTagsView: computed(() => SettingsModule.tagsView),
+      fixedHeader: computed(() => SettingsModule.fixedHeader),
       classObj,
-      handleClickOutside
+      handleClickOutside: () =>
+        AppModule.closeSideBar({ withoutAnimation: false })
     }
   }
 })

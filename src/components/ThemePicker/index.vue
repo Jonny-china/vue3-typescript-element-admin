@@ -17,9 +17,9 @@
 </template>
 
 <script lang="ts">
-import { useSelector } from '@/hooks/vuex'
+import { SettingsModule } from '@/store/modules'
 import { ElMessage } from 'element-plus'
-import { defineComponent, getCurrentInstance, ref, watch } from 'vue'
+import { computed, defineComponent, ref, watch } from 'vue'
 
 const version = require('element-plus/package.json').version // element-plus version from node_modules
 const ORIGINAL_THEME = '#409EFF' // default color
@@ -27,11 +27,10 @@ const ORIGINAL_THEME = '#409EFF' // default color
 const ThemePicker = defineComponent({
   name: 'ThemePicker',
   setup(props, { emit }) {
-    const app = getCurrentInstance()
     let chalk = '' // content of theme-chalk css
     const theme = ref('')
 
-    const { theme: defaultTheme } = useSelector(state => state.settings)
+    const defaultTheme = computed(() => SettingsModule.theme)
 
     watch(
       defaultTheme,
@@ -48,11 +47,8 @@ const ThemePicker = defineComponent({
       if (typeof val !== 'string') return
       const themeCluster = getThemeCluster(val.replace('#', ''))
       const originalCluster = getThemeCluster(oldVal.replace('#', ''))
-      console.log(themeCluster, originalCluster)
-      console.log(app)
-      console.log(ElMessage)
       const $message = ElMessage({
-        message: '  Compiling the theme',
+        message: 'Compiling the theme',
         customClass: 'theme-message',
         type: 'success',
         duration: 0,

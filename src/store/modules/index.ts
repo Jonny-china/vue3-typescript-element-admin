@@ -1,0 +1,6 @@
+export { AppModule } from './app'
+export { ErrorLogModule } from './errorLog'
+export { PermissionModule } from './permission'
+export { SettingsModule } from './settings'
+export { TagsViewModule } from './tagsView'
+export { UserModule } from './user'

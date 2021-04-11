@@ -1,29 +1,27 @@
-import { Module } from 'vuex'
-import { StoreRootState } from '..'
+import {
+  config,
+  getModule,
+  Module,
+  MutationAction,
+  VuexModule
+} from 'vuex-module-decorators'
+import store from '..'
 
-export interface ErrorLogState {
-  logs: any[]
+config.rawError = true
+
+@Module({ namespaced: true, dynamic: true, store, name: 'errorLog' })
+class ErrorLog extends VuexModule {
+  logs: any[] = []
+
+  @MutationAction
+  async addErrorLog(log: any) {
+    return { logs: [...this.logs, log] }
+  }
+
+  @MutationAction
+  async clearErrorLog() {
+    return { logs: [] as any[] }
+  }
 }
 
-export default {
-  namespaced: true,
-  state: {
-    logs: []
-  },
-  mutations: {
-    ADD_ERROR_LOG: (state, log) => {
-      state.logs.push(log)
-    },
-    CLEAR_ERROR_LOG: state => {
-      state.logs.splice(0)
-    }
-  },
-  actions: {
-    addErrorLog({ commit }, log) {
-      commit('ADD_ERROR_LOG', log)
-    },
-    clearErrorLog({ commit }) {
-      commit('CLEAR_ERROR_LOG')
-    }
-  }
-} as Module<ErrorLogState, StoreRootState>
+export const ErrorLogModule = getModule(ErrorLog)

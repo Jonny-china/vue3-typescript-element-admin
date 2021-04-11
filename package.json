@@ -20,7 +20,8 @@
     "screenfull": "^5.1.0",
     "vue": "^3.0.11",
     "vue-router": "^4.0.6",
-    "vuex": "^4.0.0"
+    "vuex": "^4.0.0",
+    "vuex-module-decorators": "^1.0.1"
   },
   "devDependencies": {
     "@types/clipboard": "^2.0.1",

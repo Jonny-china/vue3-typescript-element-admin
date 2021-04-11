@@ -1,25 +1,14 @@
-<template>
-  <i v-if="icon && icon.includes('el-icon')" :class="[icon, 'sub-el-icon']" />
-  <svg-icon v-else :icon-class="icon" />
-  <span>{{ title }}</span>
-</template>
-
-<script lang="ts">
-import { defineComponent } from 'vue'
-
-const MenuItem = defineComponent({
-  name: 'MenuItem',
-  props: {
-    icon: {
-      type: String,
-      default: ''
-    },
-    title: {
-      type: String,
-      default: ''
+<script lang="tsx">
+const MenuItem = ({ icon }: { icon: string }) => {
+  if (icon) {
+    if (icon.includes('el-icon')) {
+      return <i class={[icon, 'sub-el-icon']} />
+    } else {
+      return <svg-icon icon-class={icon} />
     }
   }
-})
+  return null
+}
 export default MenuItem
 </script>
 

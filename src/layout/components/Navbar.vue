@@ -69,9 +69,9 @@ import ErrorLog from '@/components/ErrorLog/index.vue'
 import Screenfull from '@/components/Screenfull/index.vue'
 import SizeSelect from '@/components/SizeSelect/index.vue'
 import Search from '@/components/HeaderSearch/index.vue'
-import { defineComponent } from 'vue'
-import { useDispatch, useGetters } from '@/hooks/vuex'
+import { computed, defineComponent } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { AppModule, UserModule } from '@/store/modules'
 
 const Navbar = defineComponent({
   components: {
@@ -86,18 +86,19 @@ const Navbar = defineComponent({
     ...mapGetters(['sidebar', 'avatar', 'device'])
   },
   setup() {
-    const dispatch = useDispatch()
     const route = useRoute()
     const router = useRouter()
 
-    const { sidebar, avatar, device } = useGetters()
+    const sidebar = computed(() => AppModule.sidebar)
+    const avatar = computed(() => UserModule.avatar)
+    const device = computed(() => AppModule.device)
 
     function toggleSideBar() {
-      dispatch('app/toggleSideBar')
+      AppModule.toggleSideBar()
     }
 
     async function logout() {
-      await dispatch('user/logout')
+      UserModule.logout()
       router.push(`/login?redirect=${route.fullPath}`)
     }
     return {

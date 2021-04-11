@@ -1,13 +1,8 @@
-import { reactive, readonly } from 'vue'
 import { createStore } from 'vuex'
-import getters from './getters'
-import { AppState } from './modules/app'
-import { ErrorLogState } from './modules/errorLog'
-import { PermissionState } from './modules/permission'
-import { SettingsState } from './modules/settings'
-import { TagsViewState } from './modules/tagsView'
-import { UserState } from './modules/user'
 
+const store = createStore({})
+
+export default store
 // 加载所有模块。
 function loadModules() {
   const context = require.context('./modules', false, /([a-z_]+)\.ts$/i)
@@ -26,16 +21,8 @@ function loadModules() {
   return { context, modules }
 }
 
-const { context, modules } = loadModules()
-
-const store = createStore<StoreRootState>({
-  getters,
-  modules
-})
-
-export default store
-
 if (module.hot) {
+  const { context } = loadModules()
   // 在任何模块发生改变时进行热重载。
   module.hot.accept(context.id, () => {
     const { modules } = loadModules()
@@ -45,24 +32,3 @@ if (module.hot) {
     })
   })
 }
-
-export interface StoreRootState {
-  app: AppState
-  errorLog: ErrorLogState
-  permission: PermissionState
-  settings: SettingsState
-  tagsView: TagsViewState
-  user: UserState
-}
-
-export const AppModule = readonly(reactive(store.state.app))
-
-export const ErrorLogMudole = readonly(reactive(store.state.errorLog))
-
-export const PermissionModule = readonly(reactive(store.state.permission))
-
-export const SettingsModule = readonly(reactive(store.state.settings))
-
-export const TagsViewModule = readonly(reactive(store.state.tagsView))
-
-export const UserModule = readonly(reactive(store.state.user))

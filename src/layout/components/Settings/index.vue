@@ -32,56 +32,40 @@
 <script lang="ts">
 import ThemePicker from '@/components/ThemePicker/index.vue'
 import { computed } from 'vue'
-import { useDispatch, useSelector } from '@/hooks/vuex'
+import { SettingsModule } from '@/store/modules'
 
 export default {
   components: { ThemePicker },
   setup() {
-    const settings = useSelector(state => state.settings)
-    const dispatch = useDispatch()
-
     const fixedHeader = computed({
       get() {
-        return settings.fixedHeader.value
+        return SettingsModule.fixedHeader
       },
       set(val: boolean) {
-        dispatch('settings/changeSetting', {
-          key: 'fixedHeader',
-          value: val
-        })
+        SettingsModule.changeSetting({ key: 'fixedHeader', value: val })
       }
     })
 
     const tagsView = computed({
       get() {
-        return settings.tagsView.value
+        return SettingsModule.tagsView
       },
       set(val: boolean) {
-        dispatch('settings/changeSetting', {
-          key: 'tagsView',
-          value: val
-        })
+        SettingsModule.changeSetting({ key: 'tagsView', value: val })
       }
     })
 
     const sidebarLogo = computed({
       get() {
-        return settings.sidebarLogo.value
+        return SettingsModule.sidebarLogo
       },
       set(val: boolean) {
-        dispatch('settings/changeSetting', {
-          key: 'sidebarLogo',
-          value: val
-        })
+        SettingsModule.changeSetting({ key: 'sidebarLogo', value: val })
       }
     })
 
     function themeChange(val: string) {
-      console.log(val)
-      dispatch('settings/changeSetting', {
-        key: 'theme',
-        value: val
-      })
+      SettingsModule.changeSetting({ key: 'theme', value: val })
     }
 
     return {

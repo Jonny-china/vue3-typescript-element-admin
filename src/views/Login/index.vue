@@ -101,10 +101,10 @@
 import { defineComponent, nextTick, reactive, ref } from 'vue'
 import { validUsername } from '@/utils/validate'
 import { FormRuleItem, FormRules } from '@/types/common'
-import { useDispatch } from '@/hooks/vuex'
 import { useRouter } from 'vue-router'
 import SocialSign from './components/SocialSignin.vue'
 import { ElForm } from 'element-plus'
+import { UserModule } from '@/store/modules'
 
 const Login = defineComponent({
   name: 'Login',
@@ -168,7 +168,6 @@ const Login = defineComponent({
         passwordRef.value?.focus()
       })
     }
-    const dispatch = useDispatch()
 
     const router = useRouter()
 
@@ -176,7 +175,7 @@ const Login = defineComponent({
       formRef.value?.validate((valid: boolean) => {
         if (valid) {
           loading.value = true
-          dispatch('user/login', loginForm)
+          UserModule.login(loginForm)
             .then(() => {
               router.push({
                 path: redirect.value || '/',

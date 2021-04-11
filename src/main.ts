@@ -1,10 +1,10 @@
 import { createApp } from 'vue'
 import Cookies from 'js-cookie'
+import store from './store'
 import App from './App.vue'
 import './registerServiceWorker'
 import router from './router'
 import './permission'
-import store from './store'
 
 import 'normalize.css/normalize.css' // a modern alternative to CSS resets
 

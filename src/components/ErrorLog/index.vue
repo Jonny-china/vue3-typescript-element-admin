@@ -63,24 +63,22 @@
 </template>
 
 <script lang="ts">
-import { useDispatch, useGetters } from '@/hooks/vuex'
-import { defineComponent, ref } from 'vue'
+import { ErrorLogModule } from '@/store/modules'
+import { computed, defineComponent, ref } from 'vue'
 
 const ErrorLog = defineComponent({
   name: 'ErrorLog',
   setup() {
     const dialogTableVisible = ref(false)
-    const { errorLogs } = useGetters()
-    const dispatch = useDispatch()
 
     function clearAll() {
       dialogTableVisible.value = false
-      dispatch('errorLog/clearErrorLog')
+      ErrorLogModule.clearErrorLog()
     }
 
     return {
       dialogTableVisible,
-      errorLogs,
+      errorLogs: computed(() => ErrorLogModule.logs),
       clearAll
     }
   }

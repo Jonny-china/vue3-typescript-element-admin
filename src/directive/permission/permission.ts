@@ -1,9 +1,9 @@
-import store from '@/store'
+import { UserModule } from '@/store/modules'
 import { Directive } from 'vue'
 
 const permission: Directive = (el, binding) => {
   const { value } = binding
-  const roles = store.getters && store.getters.roles
+  const roles = UserModule.roles
 
   if (value && value instanceof Array) {
     if (value.length > 0) {

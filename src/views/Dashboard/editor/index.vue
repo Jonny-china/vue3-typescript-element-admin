@@ -24,21 +24,19 @@
 <script lang="ts">
 import GithubCorner from '@/components/GithubCorner/index.vue'
 import PanThumb from '@/components/PanThumb/index.vue'
-import { useGetters } from '@/hooks/vuex'
-import { defineComponent } from 'vue'
+import { UserModule } from '@/store/modules'
+import { computed, defineComponent } from 'vue'
 
 const DashboardEditor = defineComponent({
   name: 'DashboardEditor',
   components: { PanThumb, GithubCorner },
   setup() {
-    const { roles, name, avatar } = useGetters()
-
     return {
       emptyGif:
         'https://wpimg.wallstcn.com/0e03b7da-db9e-4819-ba10-9016ddfdaed3',
-      roles,
-      name,
-      avatar
+      roles: computed(() => UserModule.roles),
+      name: computed(() => UserModule.name),
+      avatar: computed(() => UserModule.avatar)
     }
   }
 })

@@ -1,9 +1,17 @@
 import { login, logout, getInfo } from '@/api/user'
 import { getToken, setToken, removeToken } from '@/utils/auth'
 import router, { resetRouter } from '@/router'
-import { Module } from 'vuex'
-import { StoreRootState } from '..'
 import { RouteRecordRaw } from 'vue-router'
+import {
+  config,
+  getModule,
+  Module,
+  MutationAction,
+  VuexModule
+} from 'vuex-module-decorators'
+config.rawError = true
+
+import store from '..'
 
 export interface UserState {
   token: string
@@ -13,134 +21,118 @@ export interface UserState {
   roles: string[]
 }
 
-export default {
-  namespaced: true,
-  state: {
-    token: getToken(),
-    name: '',
-    avatar: '',
-    introduction: '',
-    roles: []
-  },
-  mutations: {
-    SET_TOKEN: (state, token) => {
-      state.token = token
-    },
-    SET_INTRODUCTION: (state, introduction) => {
-      state.introduction = introduction
-    },
-    SET_NAME: (state, name) => {
-      state.name = name
-    },
-    SET_AVATAR: (state, avatar) => {
-      state.avatar = avatar
-    },
-    SET_ROLES: (state, roles) => {
-      state.roles = roles
-    }
-  },
-  actions: {
-    // user login
-    login({ commit }, userInfo) {
+@Module({ name: 'user', namespaced: true, store, dynamic: true })
+class User extends VuexModule implements UserState {
+  token: string = getToken()!
+  name: string = ''
+  avatar = ''
+  introduction: string = ''
+  roles: string[] = []
+
+  @MutationAction({ mutate: ['token'] })
+  async login(userInfo: { username: string; password: string }) {
+    try {
       const { username, password } = userInfo
-      return new Promise((resolve, reject) => {
-        login({ username: username.trim(), password: password })
-          .then(response => {
-            const { data } = response
-            commit('SET_TOKEN', data.token)
-            setToken(data.token)
-            resolve(data.token)
-          })
-          .catch(error => {
-            reject(error)
-          })
-      })
-    },
+      const { data } = await login({ username: username.trim(), password })
+      setToken(data.token)
+      return { token: data.token }
+    } catch (error) {
+      return Promise.reject(error)
+    }
+  }
 
-    // get user info
-    getInfo({ commit, state }) {
-      return new Promise((resolve, reject) => {
-        getInfo(state.token)
-          .then(response => {
-            const { data } = response
+  @MutationAction({ mutate: ['name', 'avatar', 'introduction', 'roles'] })
+  async getInfo() {
+    try {
+      const { data } = await getInfo((this.state as UserState).token)
+      if (!data) {
+        return Promise.reject('Verification failed, please Login again.')
+      }
 
-            if (!data) {
-              reject('Verification failed, please Login again.')
-            }
+      const { roles, name, avatar, introduction } = data
 
-            const { roles, name, avatar, introduction } = data
+      if (!roles || roles.length <= 0) {
+        return Promise.reject('getInfo: roles must be a non-null array!')
+      }
 
-            // roles must be a non-empty array
-            if (!roles || roles.length <= 0) {
-              reject('getInfo: roles must be a non-null array!')
-            }
+      return {
+        roles,
+        name,
+        avatar,
+        introduction
+      }
+    } catch (error) {
+      return Promise.reject(error)
+    }
+  }
 
-            commit('SET_ROLES', roles)
-            commit('SET_NAME', name)
-            commit('SET_AVATAR', avatar)
-            commit('SET_INTRODUCTION', introduction)
-            resolve(data)
-          })
-          .catch(error => {
-            reject(error)
-          })
-      })
-    },
+  @MutationAction({ mutate: ['token', 'roles'] })
+  async logout() {
+    try {
+      await logout()
+      removeToken()
+      resetRouter()
 
-    // user logout
-    logout({ commit, dispatch }) {
-      return new Promise((resolve, reject) => {
-        logout()
-          .then(() => {
-            commit('SET_TOKEN', '')
-            commit('SET_ROLES', [])
-            removeToken()
-            resetRouter()
+      // reset visited views and cached views
+      // to fixed https://github.com/PanJiaChen/vue-element-admin/issues/2485
+      this.context.dispatch('TagsView/delAllViews', null, { root: true })
 
-            // reset visited views and cached views
-            // to fixed https://github.com/PanJiaChen/vue-element-admin/issues/2485
-            dispatch('tagsView/delAllViews', null, { root: true })
+      return {
+        token: '',
+        roles: []
+      }
+    } catch (error) {
+      return Promise.reject(error)
+    }
+  }
 
-            resolve(true)
-          })
-          .catch(error => {
-            reject(error)
-          })
-      })
-    },
+  @MutationAction({ mutate: ['token', 'roles'] })
+  async resetToken() {
+    try {
+      removeToken()
+      return {
+        token: '',
+        roles: []
+      }
+    } catch (error) {
+      return Promise.reject(error)
+    }
+  }
 
-    // remove token
-    resetToken({ commit }) {
-      return new Promise(resolve => {
-        commit('SET_TOKEN', '')
-        commit('SET_ROLES', [])
-        removeToken()
-        resolve(true)
-      })
-    },
-
-    // dynamically modify permissions
-    async changeRoles({ commit, dispatch }, role) {
+  @MutationAction({ mutate: ['token'] })
+  async changeRoles(role: string) {
+    try {
       const token = role + '-token'
 
-      commit('SET_TOKEN', token)
       setToken(token)
 
-      const { roles } = await dispatch('getInfo')
+      const { roles } = await this.context.dispatch('getInfo')
 
       resetRouter()
 
       // generate accessible routes map based on roles
-      const accessRoutes = (await dispatch('permission/generateRoutes', roles, {
-        root: true
-      })) as RouteRecordRaw[]
+      const accessRoutes = (await this.context.dispatch(
+        'permission/generateRoutes',
+        roles,
+        {
+          root: true
+        }
+      )) as RouteRecordRaw[]
       // dynamically add accessible routes
       accessRoutes.forEach(route => {
         router.addRoute(route)
       })
 
       // reset visited views and cached views
-      dispatch('tagsView/delAllViews', null, { root: true })
+      this.context.dispatch('tagsView/delAllViews', null, { root: true })
+
+      return {
+        token
+      }
+    } catch (error) {
+      return Promise.reject(error)
     }
   }
-} as Module<UserState, StoreRootState>
+}
+
+export const UserModule = getModule(User)

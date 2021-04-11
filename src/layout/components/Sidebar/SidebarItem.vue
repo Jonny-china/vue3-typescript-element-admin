@@ -1,5 +1,5 @@
 <template>
-  <div v-if="!item.hidden">
+  <template v-if="!item.hidden">
     <template
       v-if="
         hasOneShowingChild(item.children, item) &&
@@ -14,8 +14,10 @@
         >
           <item
             :icon="onlyOneChild.meta.icon || (item.meta && item.meta.icon)"
-            :title="onlyOneChild.meta.title"
           />
+          <template #title>
+            <span>{{ onlyOneChild.meta.title }}</span>
+          </template>
         </el-menu-item>
       </app-link>
     </template>
@@ -26,12 +28,15 @@
       :index="resolvePath(item.path)"
       popper-append-to-body
     >
-      <template v-slot:title>
+      <template #title>
         <item
           v-if="item.meta"
           :icon="item.meta && item.meta.icon"
           :title="item.meta.title"
         />
+        <template v-if="item.meta && item.meta.title">
+          <span>{{ item.meta.title }}</span>
+        </template>
       </template>
       <sidebar-item
         v-for="child in item.children"
@@ -42,7 +47,7 @@
         class="nest-menu"
       />
     </el-submenu>
-  </div>
+  </template>
 </template>
 
 <script lang="ts">

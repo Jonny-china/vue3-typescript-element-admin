@@ -1,7 +1,17 @@
 import { ComponentSize } from '@/types/common'
 import Cookies from 'js-cookie'
-import { Module } from 'vuex'
-import { StoreRootState } from '..'
+import {
+  Action,
+  config,
+  getModule,
+  Module,
+  Mutation,
+  MutationAction,
+  VuexModule
+} from 'vuex-module-decorators'
+import store from '..'
+
+config.rawError = true
 
 export interface AppState {
   sidebar: {
@@ -12,54 +22,72 @@ export interface AppState {
 
   size: ComponentSize
 }
+@Module({
+  dynamic: true,
+  store,
+  name: 'app',
+  namespaced: true
+})
+class App extends VuexModule implements AppState {
+  sidebar = {
+    opened: Cookies.get('sidebarStatus') !== 'closed',
+    withoutAnimation: false
+  }
 
-export default {
-  namespaced: true,
-  state: {
-    sidebar: {
-      opened: Cookies.get('sidebarStatus')
-        ? !!Cookies.get('sidebarStatus')
-        : true,
-      withoutAnimation: false
-    },
-    device: 'desktop',
-    size: (Cookies.get('size') as ComponentSize) || 'medium'
-  },
-  mutations: {
-    TOGGLE_SIDEBAR: state => {
-      state.sidebar.opened = !state.sidebar.opened
-      state.sidebar.withoutAnimation = false
-      if (state.sidebar.opened) {
-        Cookies.set('sidebarStatus', '1')
-      } else {
-        Cookies.set('sidebarStatus', '0')
-      }
-    },
-    CLOSE_SIDEBAR: (state, withoutAnimation) => {
+  device: AppState['device'] = 'desktop'
+
+  size: AppState['size'] = (Cookies.get('size') as ComponentSize) || 'medium'
+
+  @Mutation
+  TOGGLE_SIDEBAR() {
+    this.sidebar.opened = !this.sidebar.opened
+    this.sidebar.withoutAnimation = false
+    if (this.sidebar.opened) {
+      Cookies.set('sidebarStatus', '1')
+    } else {
       Cookies.set('sidebarStatus', '0')
-      state.sidebar.opened = false
-      state.sidebar.withoutAnimation = withoutAnimation
-    },
-    TOGGLE_DEVICE: (state, device) => {
-      state.device = device
-    },
-    SET_SIZE: (state, size) => {
-      state.size = size
-      Cookies.set('size', size)
-    }
-  },
-  actions: {
-    toggleSideBar({ commit }) {
-      commit('TOGGLE_SIDEBAR')
-    },
-    closeSideBar({ commit }, { withoutAnimation }) {
-      commit('CLOSE_SIDEBAR', withoutAnimation)
-    },
-    toggleDevice({ commit }, device: string) {
-      commit('TOGGLE_DEVICE', device)
-    },
-    setSize({ commit }, size: ComponentSize) {
-      commit('SET_SIZE', size)
     }
   }
-} as Module<AppState, StoreRootState>
+
+  @Mutation
+  CLOSE_SIDEBAR(withoutAnimation: boolean) {
+    Cookies.set('sidebarStatus', '0')
+    this.sidebar.opened = false
+    this.sidebar.withoutAnimation = withoutAnimation
+  }
+
+  @Mutation
+  TOGGLE_DEVICE(device: AppState['device']) {
+    this.device = device
+  }
+
+  @Mutation
+  SET_SIZE(size: AppState['size']) {
+    this.size = size
+    Cookies.set('size', size)
+  }
+
+  @Action
+  toggleSideBar() {
+    this.TOGGLE_SIDEBAR()
+  }
+
+  @Action
+  closeSideBar({ withoutAnimation }: { withoutAnimation: boolean }) {
+    this.CLOSE_SIDEBAR(withoutAnimation)
+  }
+
+  @MutationAction
+  async toggleDevice(device: string) {
+    return { device }
+  }
+
+  @MutationAction
+  async setSize(size: ComponentSize) {
+    console.log(this)
+    Cookies.set('size', size)
+    return { size }
+  }
+}
+
+export const AppModule = getModule(App)

@@ -1,164 +1,189 @@
-import { RouteRecordRaw } from 'vue-router'
-import { Module } from 'vuex'
-import { StoreRootState } from '..'
+import {
+  RouteRecordName,
+  RouteRecordRaw,
+  RouteLocationNormalizedLoaded
+} from 'vue-router'
+import {
+  config,
+  Action,
+  getModule,
+  Module,
+  Mutation,
+  VuexModule
+} from 'vuex-module-decorators'
+config.rawError = true
+import store from '..'
 
-export interface TagsViewState {
-  visitedViews: RouteRecordRaw[]
-  cachedViews: RouteRecordRaw[]
-}
+@Module({ name: 'tagsView', namespaced: true, store, dynamic: true })
+class TagsView extends VuexModule {
+  visitedViews: RouteRecordRaw[] = []
+  cachedViews: RouteRecordName[] = []
 
-export default {
-  namespaced: true,
-  state: {
-    visitedViews: [],
-    cachedViews: []
-  },
-  mutations: {
-    ADD_VISITED_VIEW: (state, view) => {
-      if (state.visitedViews.some(v => v.path === view.path)) return
-      state.visitedViews.push(
-        Object.assign({}, view, {
-          title: view.meta.title || 'no-name'
-        })
-      )
-    },
-    ADD_CACHED_VIEW: (state, view) => {
-      if (state.cachedViews.includes(view.name)) return
-      if (!view.meta.noCache) {
-        state.cachedViews.push(view.name)
-        console.log(state)
-      }
-    },
-
-    DEL_VISITED_VIEW: (state, view) => {
-      for (const [i, v] of state.visitedViews.entries()) {
-        if (v.path === view.path) {
-          state.visitedViews.splice(i, 1)
-          break
-        }
-      }
-    },
-    DEL_CACHED_VIEW: (state, view) => {
-      const index = state.cachedViews.indexOf(view.name)
-      index > -1 && state.cachedViews.splice(index, 1)
-    },
-
-    DEL_OTHERS_VISITED_VIEWS: (state, view) => {
-      state.visitedViews = state.visitedViews.filter(v => {
-        return v.meta?.affix || v.path === view.path
+  @Mutation
+  ADD_VISITED_VIEW(view: RouteRecordRaw) {
+    if (this.visitedViews.some(v => v.path === view.path)) return
+    this.visitedViews.push(
+      Object.assign({}, view, {
+        title: view.meta?.title || 'no-name'
       })
-    },
-    DEL_OTHERS_CACHED_VIEWS: (state, view) => {
-      const index = state.cachedViews.indexOf(view.name)
-      if (index > -1) {
-        state.cachedViews = state.cachedViews.slice(index, index + 1)
-      } else {
-        // if index = -1, there is no cached tags
-        state.cachedViews = []
-      }
-    },
-
-    DEL_ALL_VISITED_VIEWS: state => {
-      // keep affix tags
-      const affixTags = state.visitedViews.filter(tag => tag.meta?.affix)
-      state.visitedViews = affixTags
-    },
-    DEL_ALL_CACHED_VIEWS: state => {
-      state.cachedViews = []
-    },
-
-    UPDATE_VISITED_VIEW: (state, view) => {
-      for (let v of state.visitedViews) {
-        if (v.path === view.path) {
-          v = Object.assign(v, view)
-          break
-        }
-      }
-    }
-  },
-  actions: {
-    addView({ dispatch }, view) {
-      dispatch('addVisitedView', view)
-      dispatch('addCachedView', view)
-    },
-    addVisitedView({ commit }, view) {
-      commit('ADD_VISITED_VIEW', view)
-    },
-    addCachedView({ commit }, view) {
-      commit('ADD_CACHED_VIEW', view)
-    },
-
-    delView({ dispatch, state }, view) {
-      return new Promise(resolve => {
-        dispatch('delVisitedView', view)
-        dispatch('delCachedView', view)
-        resolve({
-          visitedViews: [...state.visitedViews],
-          cachedViews: [...state.cachedViews]
-        })
-      })
-    },
-    delVisitedView({ commit, state }, view) {
-      return new Promise(resolve => {
-        commit('DEL_VISITED_VIEW', view)
-        resolve([...state.visitedViews])
-      })
-    },
-    delCachedView({ commit, state }, view) {
-      return new Promise(resolve => {
-        commit('DEL_CACHED_VIEW', view)
-        resolve([...state.cachedViews])
-      })
-    },
-
-    delOthersViews({ dispatch, state }, view) {
-      return new Promise(resolve => {
-        dispatch('delOthersVisitedViews', view)
-        dispatch('delOthersCachedViews', view)
-        resolve({
-          visitedViews: [...state.visitedViews],
-          cachedViews: [...state.cachedViews]
-        })
-      })
-    },
-    delOthersVisitedViews({ commit, state }, view) {
-      return new Promise(resolve => {
-        commit('DEL_OTHERS_VISITED_VIEWS', view)
-        resolve([...state.visitedViews])
-      })
-    },
-    delOthersCachedViews({ commit, state }, view) {
-      return new Promise(resolve => {
-        commit('DEL_OTHERS_CACHED_VIEWS', view)
-        resolve([...state.cachedViews])
-      })
-    },
-
-    delAllViews({ dispatch, state }, view) {
-      return new Promise(resolve => {
-        dispatch('delAllVisitedViews', view)
-        dispatch('delAllCachedViews', view)
-        resolve({
-          visitedViews: [...state.visitedViews],
-          cachedViews: [...state.cachedViews]
-        })
-      })
-    },
-    delAllVisitedViews({ commit, state }) {
-      return new Promise(resolve => {
-        commit('DEL_ALL_VISITED_VIEWS')
-        resolve([...state.visitedViews])
-      })
-    },
-    delAllCachedViews({ commit, state }) {
-      return new Promise(resolve => {
-        commit('DEL_ALL_CACHED_VIEWS')
-        resolve([...state.cachedViews])
-      })
-    },
-
-    updateVisitedView({ commit }, view) {
-      commit('UPDATE_VISITED_VIEW', view)
+    )
+  }
+  @Mutation
+  ADD_CACHED_VIEW(view: RouteRecordRaw) {
+    if (this.cachedViews.includes(view.name!)) return
+    if (!view.meta?.noCache) {
+      this.cachedViews.push(view.name!)
     }
   }
-} as Module<TagsViewState, StoreRootState>
+
+  @Mutation
+  DEL_VISITED_VIEW(view: RouteRecordRaw) {
+    for (const [i, v] of this.visitedViews.entries()) {
+      if (v.path === view.path) {
+        this.visitedViews.splice(i, 1)
+        break
+      }
+    }
+  }
+
+  @Mutation
+  DEL_CACHED_VIEW(view: RouteRecordRaw) {
+    const index = this.cachedViews.indexOf(view.name!)
+    index > -1 && this.cachedViews.splice(index, 1)
+  }
+
+  @Mutation
+  DEL_OTHERS_VISITED_VIEWS(view: RouteRecordRaw) {
+    this.visitedViews = this.visitedViews.filter(v => {
+      return v.meta?.affix || v.path === view.path
+    })
+  }
+
+  @Mutation
+  DEL_OTHERS_CACHED_VIEWS(view: RouteRecordRaw) {
+    const index = this.cachedViews.indexOf(view.name!)
+    if (index > -1) {
+      this.cachedViews = this.cachedViews.slice(index, index + 1)
+    } else {
+      // if index = -1, there is no cached tags
+      this.cachedViews = []
+    }
+  }
+
+  @Mutation
+  DEL_ALL_VISITED_VIEWS() {
+    // keep affix tags
+    const affixTags = this.visitedViews.filter(tag => tag.meta?.affix)
+    this.visitedViews = affixTags
+  }
+
+  @Mutation
+  DEL_ALL_CACHED_VIEWS() {
+    this.cachedViews = []
+  }
+
+  @Mutation
+  UPDATE_VISITED_VIEW(view: RouteRecordRaw) {
+    for (let v of this.visitedViews) {
+      if (v.path === view.path) {
+        v = Object.assign(v, view)
+        break
+      }
+    }
+  }
+
+  @Action
+  addView(view: RouteRecordRaw | RouteLocationNormalizedLoaded) {
+    this.context.dispatch('addVisitedView', view)
+    this.context.dispatch('addCachedView', view)
+  }
+
+  @Action
+  addVisitedView(view: RouteRecordRaw | RouteLocationNormalizedLoaded) {
+    this.context.commit('ADD_VISITED_VIEW', view)
+  }
+  @Action
+  addCachedView(view: RouteRecordRaw | RouteLocationNormalizedLoaded) {
+    this.context.commit('ADD_CACHED_VIEW', view)
+  }
+  @Action
+  async delView(view: RouteRecordRaw | RouteLocationNormalizedLoaded) {
+    this.context.dispatch('delVisitedView', view)
+    this.context.dispatch('delCachedView', view)
+
+    return {
+      visitedViews: [...this.visitedViews],
+      cachedViews: [...this.cachedViews]
+    }
+  }
+
+  @Action
+  delVisitedView(view: RouteRecordRaw | RouteLocationNormalizedLoaded) {
+    return new Promise(resolve => {
+      this.context.commit('DEL_VISITED_VIEW', view)
+      resolve([...this.visitedViews])
+    })
+  }
+
+  @Action
+  async delCachedView(view: RouteRecordRaw | RouteLocationNormalizedLoaded) {
+    this.context.commit('DEL_CACHED_VIEW', view)
+    return [...this.cachedViews]
+  }
+
+  @Action
+  async delOthersViews(view: RouteRecordRaw | RouteLocationNormalizedLoaded) {
+    this.context.dispatch('delOthersVisitedViews', view)
+    this.context.dispatch('delOthersCachedViews', view)
+
+    return {
+      visitedViews: [...this.visitedViews],
+      cachedViews: [...this.cachedViews]
+    }
+  }
+
+  @Action
+  delOthersVisitedViews(view: RouteRecordRaw | RouteLocationNormalizedLoaded) {
+    return new Promise(resolve => {
+      this.context.commit('DEL_OTHERS_VISITED_VIEWS', view)
+      resolve([...this.visitedViews])
+    })
+  }
+
+  @Action
+  delOthersCachedViews(view: RouteRecordRaw | RouteLocationNormalizedLoaded) {
+    return new Promise(resolve => {
+      this.context.commit('DEL_OTHERS_CACHED_VIEWS', view)
+      resolve([...this.cachedViews])
+    })
+  }
+
+  @Action
+  async delAllViews() {
+    this.context.dispatch('delAllVisitedViews')
+    this.context.dispatch('delAllCachedViews')
+    return {
+      visitedViews: [...this.visitedViews],
+      cachedViews: [...this.cachedViews]
+    }
+  }
+
+  @Action
+  async delAllVisitedViews() {
+    this.context.commit('DEL_ALL_VISITED_VIEWS')
+    return [...this.visitedViews]
+  }
+
+  @Action
+  async delAllCachedViews() {
+    this.context.commit('DEL_ALL_CACHED_VIEWS')
+    return [...this.cachedViews]
+  }
+
+  @Action
+  updateVisitedView(view: RouteRecordRaw | RouteLocationNormalizedLoaded) {
+    this.context.commit('UPDATE_VISITED_VIEW', view)
+  }
+}
+
+export const TagsViewModule = getModule(TagsView)

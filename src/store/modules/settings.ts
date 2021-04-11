@@ -1,7 +1,14 @@
 import variables from '@/styles/element-variables.scss'
+import {
+  config,
+  getModule,
+  Module,
+  MutationAction,
+  VuexModule
+} from 'vuex-module-decorators'
+config.rawError = true
 const defaultSettings = require('@/settings')
-import { Module } from 'vuex'
-import { StoreRootState } from '..'
+import store from '..'
 
 export interface SettingsState {
   theme: string
@@ -11,29 +18,32 @@ export interface SettingsState {
   sidebarLogo: boolean
 }
 
-type ChangeSettin = { key: keyof SettingsState; value: string | boolean }
+type ChangeSettin = {
+  key: keyof SettingsState
+  value: SettingsState[ChangeSettin['key']]
+}
 
 const { showSettings, tagsView, fixedHeader, sidebarLogo } = defaultSettings
-
-export default {
+@Module({
+  name: 'settings',
+  store,
   namespaced: true,
-  state: {
-    theme: variables.theme,
-    showSettings: showSettings,
-    tagsView: tagsView,
-    fixedHeader: fixedHeader,
-    sidebarLogo: sidebarLogo
-  },
-  mutations: {
-    CHANGE_SETTING: (state, { key, value }: ChangeSettin) => {
-      if (Reflect.has(state, key)) {
-        ;(state[key] as string | boolean) = value
-      }
-    }
-  },
-  actions: {
-    changeSetting({ commit }, data: ChangeSettin) {
-      commit('CHANGE_SETTING', data)
-    }
+  dynamic: true
+})
+class Settings extends VuexModule implements SettingsState {
+  theme: string = variables.theme
+  showSettings: boolean = showSettings
+  tagsView: boolean = tagsView
+  fixedHeader: boolean = fixedHeader
+  sidebarLogo: boolean = sidebarLogo
+
+  @MutationAction
+  async changeSetting(data: ChangeSettin) {
+    const state = { ...this.state } as SettingsState
+
+    ;(state[data.key] as ChangeSettin['value']) = data.value
+    return state
   }
-} as Module<SettingsState, StoreRootState>
+}
+
+export const SettingsModule = getModule(Settings)

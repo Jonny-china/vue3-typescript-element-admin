@@ -1,9 +1,8 @@
-import { useSelector } from '@/hooks/vuex'
+import { AppModule } from '@/store/modules'
 import { onMounted, ref } from 'vue'
 
 export default function useFixOSBug() {
   const subMenuRef = ref()
-  const { device } = useSelector(state => state.app)
 
   onMounted(() => {
     fixBugIniOS()
@@ -14,7 +13,7 @@ export default function useFixOSBug() {
     if ($subMenu) {
       const handleMouseleave = $subMenu.handleMouseleave
       $subMenu.handleMouseleave = (e: unknown) => {
-        if (device.value === 'mobile') {
+        if (AppModule.device === 'mobile') {
           return
         }
         handleMouseleave(e)

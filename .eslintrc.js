@@ -34,5 +34,8 @@ module.exports = {
     '@typescript-eslint/explicit-member-accessibility': 0,
     'no-console': 0,
     'no-debugger': process.env.NODE_ENV === 'production' ? 2 : 0
+  },
+  globals: {
+    JSX: true
   }
 }

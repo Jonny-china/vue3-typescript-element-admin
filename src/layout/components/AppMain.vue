@@ -11,7 +11,7 @@
 </template>
 
 <script lang="ts">
-import { TagsViewModule } from '@/store'
+import { TagsViewModule } from '@/store/modules'
 import { defineComponent, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 

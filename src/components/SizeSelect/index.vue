@@ -21,38 +21,38 @@
 </template>
 
 <script lang="ts">
-import { useDispatch, useGetters } from '@/hooks/vuex'
 import { app } from '@/main'
+import { AppModule, TagsViewModule } from '@/store/modules'
+import { ComponentSize } from '@/types/common'
 import { ElMessage } from 'element-plus'
-import { defineComponent, nextTick } from 'vue'
+import { computed, defineComponent, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 const SizeSelect = defineComponent({
   name: 'SizeSelect',
   setup() {
     const sizeOptions = [
-      { label: 'Default', value: 'default' },
+      { label: 'Default', value: undefined },
       { label: 'Medium', value: 'medium' },
       { label: 'Small', value: 'small' },
       { label: 'Mini', value: 'mini' }
     ]
 
-    const dispatch = useDispatch()
-    const { size } = useGetters()
+    const size = computed(() => AppModule.size)
     const $route = useRoute()
     const $router = useRouter()
 
-    function handleSetSize(setSize: string) {
-      app.config.globalProperties.$ELEMENT.size = size.value
-
-      dispatch('app/setSize', setSize)
+    function handleSetSize(setSize: ComponentSize) {
+      app.config.globalProperties.$ELEMENT.size = setSize
+      console.log(app.config.globalProperties.$ELEMENT)
+      AppModule.setSize(setSize)
       refreshView()
       ElMessage.warning('Switch Size Success')
     }
 
     function refreshView() {
       // In order to make the cached page re-rendered
-      dispatch('tagsView/delAllCachedViews', $route)
+      TagsViewModule.delAllCachedViews()
 
       const { fullPath } = $route
 

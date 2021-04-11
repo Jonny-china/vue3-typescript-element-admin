@@ -13,7 +13,7 @@
         mode="vertical"
       >
         <sidebar-item
-          v-for="route in permission_routes"
+          v-for="route in permissionRoutes"
           :key="route.path"
           :item="route"
           :base-path="route.path"
@@ -27,9 +27,9 @@
 import Logo from './Logo.vue'
 import SidebarItem from './SidebarItem.vue'
 import stylesVariables from '@/styles/variables.scss'
-import { useGetters, useSelector } from '@/hooks/vuex'
-import { computed, defineComponent, watch } from 'vue'
+import { computed, defineComponent } from 'vue'
 import { useRoute } from 'vue-router'
+import { AppModule, PermissionModule, SettingsModule } from '@/store/modules'
 
 const Sidebar = defineComponent({
   name: 'Sidebar',
@@ -44,16 +44,15 @@ const Sidebar = defineComponent({
       }
       return path
     })
-    const { permission_routes, sidebar } = useGetters()
-    const variables = computed(() => stylesVariables)
-    const isCollapse = computed(() => !sidebar.value.opened)
 
-    const { sidebarLogo: showLogo } = useSelector(state => state.settings)
-    watch(permission_routes, val => {
-      console.log(val)
-    })
+    const sidebar = computed(() => AppModule.sidebar)
+    const permissionRoutes = computed(() => PermissionModule.routes)
+    const isCollapse = computed(() => !sidebar.value.opened)
+    const showLogo = computed(() => SettingsModule.sidebarLogo)
+    const variables = computed(() => stylesVariables)
+
     return {
-      permission_routes,
+      permissionRoutes,
       sidebar,
       activeMenu,
       showLogo,

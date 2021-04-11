@@ -1,12 +1,15 @@
 import { asyncRoutes, constantRoutes } from '@/router'
-import { Module } from 'vuex'
-import { StoreRootState } from '..'
+import store from '..'
 import { RouteRecordRaw } from 'vue-router'
-
-export interface PermissionState {
-  routes: RouteRecordRaw[]
-  addRoutes: RouteRecordRaw[]
-}
+import {
+  config,
+  Action,
+  getModule,
+  Module,
+  Mutation,
+  VuexModule
+} from 'vuex-module-decorators'
+config.rawError = true
 
 /**
  * Use meta.role to determine if the current user has permission
@@ -42,30 +45,28 @@ export function filterAsyncRoutes(routes: RouteRecordRaw[], roles: string[]) {
   return res
 }
 
-export default {
-  namespaced: true,
-  state: {
-    routes: [],
-    addRoutes: []
-  },
-  mutations: {
-    SET_ROUTES: (state, routes) => {
-      state.addRoutes = routes
-      state.routes = constantRoutes.concat(routes)
-    }
-  },
-  actions: {
-    generateRoutes({ commit }, roles) {
-      return new Promise(resolve => {
-        let accessedRoutes
-        if (roles.includes('admin')) {
-          accessedRoutes = asyncRoutes || []
-        } else {
-          accessedRoutes = filterAsyncRoutes(asyncRoutes, roles)
-        }
-        commit('SET_ROUTES', accessedRoutes)
-        resolve(accessedRoutes)
-      })
-    }
+@Module({ namespaced: true, name: 'permission', store, dynamic: true })
+class Permission extends VuexModule {
+  routes: RouteRecordRaw[] = []
+  addRoutes: RouteRecordRaw[] = []
+
+  @Mutation
+  SET_ROUTES(routes: RouteRecordRaw[]) {
+    this.addRoutes = routes
+    this.routes = constantRoutes.concat(routes)
   }
-} as Module<PermissionState, StoreRootState>
+
+  @Action
+  async generateRoutes(roles?: string[]) {
+    let accessedRoutes
+    if (roles?.includes('admin')) {
+      accessedRoutes = asyncRoutes || []
+    } else {
+      accessedRoutes = filterAsyncRoutes(asyncRoutes, roles ?? [])
+    }
+    this.SET_ROUTES(accessedRoutes)
+    return accessedRoutes
+  }
+}
+
+export const PermissionModule = getModule(Permission)

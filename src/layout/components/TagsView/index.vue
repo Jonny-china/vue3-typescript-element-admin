@@ -42,11 +42,10 @@
 <script lang="ts">
 import ScrollPane from './ScrollPane.vue'
 import path from 'path'
-import { defineComponent, nextTick, onMounted, ref, watch } from 'vue'
-import { useDispatch } from '@/hooks/vuex'
-import { useRoute, useRouter } from 'vue-router'
+import { defineComponent, nextTick, onMounted, ref, watch, computed } from 'vue'
+import { RouteLocationNormalizedLoaded, useRoute, useRouter } from 'vue-router'
 import { RouteRecordRaw } from 'vue-router'
-import { PermissionModule, TagsViewModule } from '@/store'
+import { PermissionModule, TagsViewModule } from '@/store/modules'
 
 const TagsView = defineComponent({
   name: 'TagsView',
@@ -55,17 +54,15 @@ const TagsView = defineComponent({
     const visible = ref(false)
     const top = ref(0)
     const left = ref(0)
-    const selectedTag = ref({})
+    const selectedTag = ref({} as RouteLocationNormalizedLoaded)
     const affixTags = ref<any[]>([])
 
     const tagRef = ref()
     const tagsViewRef = ref<HTMLElement>()
     const scrollPaneRef = ref()
-    const visitedViews = ref(TagsViewModule.visitedViews)
 
     const $route = useRoute()
     const $router = useRouter()
-    const dispatch = useDispatch()
 
     watch(
       () => $route.fullPath,
@@ -121,7 +118,7 @@ const TagsView = defineComponent({
       for (const tag of affix) {
         // Must have tag name
         if (tag.name) {
-          dispatch('tagsView/addVisitedView', tag)
+          TagsViewModule.addVisitedView(tag)
         }
       }
     }
@@ -129,7 +126,7 @@ const TagsView = defineComponent({
       const { name } = $route
       if (name) {
         console.log(name)
-        dispatch('tagsView/addView', $route)
+        TagsViewModule.addView($route)
       }
       return false
     }
@@ -142,15 +139,15 @@ const TagsView = defineComponent({
             scrollPaneRef.value.moveToTarget(tag)
             // when query is different then update
             if (tag.to.fullPath !== $route.fullPath) {
-              dispatch('tagsView/updateVisitedView', $route)
+              TagsViewModule.updateVisitedView($route)
             }
             break
           }
         }
       })
     }
-    function refreshSelectedTag(view: any) {
-      dispatch('tagsView/delCachedView', view).then(() => {
+    function refreshSelectedTag(view: RouteLocationNormalizedLoaded) {
+      TagsViewModule.delCachedView(view).then(() => {
         const { fullPath } = view
         nextTick(() => {
           $router.replace({
@@ -160,21 +157,20 @@ const TagsView = defineComponent({
       })
     }
     function closeSelectedTag(view: any) {
-      dispatch('tagsView/delView', view).then(({ visitedViews }) => {
+      TagsViewModule.delView(view).then(({ visitedViews }) => {
         if (isActive(view)) {
           toLastView(visitedViews, view)
         }
       })
     }
     function closeOthersTags() {
-      console.log(selectedTag.value)
       $router.push(selectedTag.value)
-      dispatch('tagsView/delOthersViews', selectedTag.value).then(() => {
+      TagsViewModule.delOthersViews(selectedTag.value as any).then(() => {
         moveToCurrentTag()
       })
     }
     function closeAllTags(view: any) {
-      dispatch('tagsView/delAllViews').then(({ visitedViews }) => {
+      TagsViewModule.delAllViews().then(({ visitedViews }) => {
         if (affixTags.value.some(tag => tag.path === view.path)) {
           return
         }
@@ -227,7 +223,7 @@ const TagsView = defineComponent({
       left,
       top,
       visible,
-      visitedViews,
+      visitedViews: computed(() => TagsViewModule.visitedViews),
       selectedTag,
       isActive,
       isAffix,

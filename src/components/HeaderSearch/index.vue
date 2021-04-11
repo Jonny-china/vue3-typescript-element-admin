@@ -29,12 +29,12 @@
 <script lang="ts">
 // fuse is a lightweight fuzzy-search module
 // make search results more in line with expectations
-import { useGetters } from '@/hooks/vuex'
 import { RouteRecordRaw } from 'vue-router'
 import Fuse from 'fuse.js'
 import path from 'path'
-import { defineComponent, nextTick, onMounted, ref, watch } from 'vue'
+import { computed, defineComponent, nextTick, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
+import { PermissionModule } from '@/store/modules'
 
 type Pool = { path: string; title: string[] }
 
@@ -50,8 +50,7 @@ const HeaderSearch = defineComponent({
     const headerSearchSelect = ref<HTMLInputElement>()
 
     const $router = useRouter()
-
-    const { permission_routes: routes } = useGetters()
+    const routes = computed(() => PermissionModule.routes)
 
     watch(
       routes,
